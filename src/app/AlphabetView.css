@@ -1,0 +1,31 @@
+.letterholder {
+    transition: transform 200ms !important;
+    margin-bottom: 10px !important;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+
+}
+
+.toggledOff {
+    transform: translateY(8px);
+    background-color: white;
+}
+
+.toggledOff.disabledLetter {
+    pointer-events: none !important;
+    background-color: rgb(219, 105, 114) !important;
+    color: black !important;
+    opacity: 0.8;
+}
+
+.toggledOn {
+    background-color: rgb(48, 163, 219) !important;
+    color: white !important;
+}
+
+.alphabetContainer {
+    margin-bottom: 20px;
+    text-align: center;
+}
