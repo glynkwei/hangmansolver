@@ -38,14 +38,8 @@ export default class extends Component<{}, State> {
     setDuds = duds => this.setState({duds});
     loadMoreWords = () => this.dictionary.add(words.data, this.onProgressLoadingAllWords);
     onProgressLoadingCommonWords = progress => this.setState({progress});
-    onProgressLoadingAllWords = progress => {
-      this.setState({progress}, () => {
-          if (this.state.progress >= 100) {
-            this.setState({displayLoadMoreCTA: false});
-          }
-      });
+    onProgressLoadingAllWords = progress => this.setState({progress, displayLoadMoreCTA: false});
 
-    };
 
     render() {
         const hint = parseStringAsHint(this.state.hintInput);
