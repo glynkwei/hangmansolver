@@ -10,6 +10,15 @@
     margin-top: 3em;
 }
 
+.centered {
+    text-align: center !important;
+}
+
+.cta {
+    margin: auto !important;
+    display: flex !important;
+}
+
 .segment {
     max-height: 250px;
     min-height: 250px;

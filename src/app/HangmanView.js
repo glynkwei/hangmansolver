@@ -2,10 +2,11 @@
 import React, {Component} from 'react';
 import HintInput from './HintInput';
 import words from '../data/words.json';
+import commonWords from '../data/commonwords.json';
 import {Dictionary, parseStringAsHint} from './Dictionary';
 import AlphabetView from './AlphabetView';
 import SolutionView from './SolutionView';
-import {Header,Segment,Progress, Modal} from 'semantic-ui-react';
+import {Header,Segment, Button, Progress, Modal} from 'semantic-ui-react';
 
 import styles from './HangmanView.css'
 
@@ -13,11 +14,7 @@ type State = {
     hintInput: string,
     duds: Set<string>,
     progress: number,
-    boundingRect: {
-        width: number,
-        height: number,
-        top: number,
-        left: number}
+    displayLoadMoreCTA: boolean
 };
 
 export default class extends Component<{}, State> {
@@ -27,28 +24,32 @@ export default class extends Component<{}, State> {
         this.dictionary = new Dictionary();
         this.state = {
             hintInput: '',
-            boundingRect:{
-                width: 0,
-                height: 0,
-                top: 0,
-                left: 0
-            },
             duds: new Set(),
-            progress: 0};
+            progress: 0,
+            displayLoadMoreCTA: true
+        };
     }
 
     componentDidMount() {
-        this.dictionary.add(words.data, this.setProgress);
-        this.setState({boundingRect: this.hintRef.getBoundingClientRect()});
+        this.dictionary.add(commonWords.data, this.onProgressLoadingCommonWords);
     }
 
     setHint = value => this.setState({hintInput: value});
     setDuds = duds => this.setState({duds});
-    setProgress = progress => this.setState({progress});
-    handleHintRef = (ref) => this.hintRef = ref;
-    handleProgressRef = ref => this.progressRef = ref;
+    loadMoreWords = () => this.dictionary.add(words.data, this.onProgressLoadingAllWords);
+    onProgressLoadingCommonWords = progress => this.setState({progress});
+    onProgressLoadingAllWords = progress => {
+      this.setState({progress}, () => {
+          if (this.state.progress >= 100) {
+            this.setState({displayLoadMoreCTA: false});
+          }
+      });
+
+    };
+
     render() {
         const hint = parseStringAsHint(this.state.hintInput);
+        const solutions = this.dictionary.search(hint, this.state.duds);
         return (
                 <React.Fragment>
                     {this.state.progress < 100 &&
@@ -69,12 +70,13 @@ export default class extends Component<{}, State> {
                         />
                     </Segment>
                     <div className ='container'>
-                    <div ref={this.handleHintRef}>
                         <HintInput onChange={this.setHint} />
-                    </div>
-                    <AlphabetView hint={hint} onChange={this.setDuds}/>
-                    <SolutionView solutions={this.dictionary.search(hint, this.state.duds)}
-                              limit={20}/>
+                        <AlphabetView hint={hint} onChange={this.setDuds}/>
+                        <SolutionView
+                            solutions={solutions}
+                            displayLoadMoreCTA={this.state.displayLoadMoreCTA}
+                            onClick={this.loadMoreWords}
+                                  limit={20}/>
                     </div>
                 </React.Fragment>
         );

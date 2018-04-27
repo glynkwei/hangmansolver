@@ -4,7 +4,7 @@ import FlipMove from 'react-flip-move';
 import {Label,Icon} from 'semantic-ui-react';
 import styles from './SolutionView.css';
 
-type Props = { solutions: [string], limit: number }
+type Props = { solutions: [string], limit: number , displayLoadMoreCTA: boolean}
 type State = { viewable: Set<string>, valid: Set<string> }
 
 const shuffle = (array: Array<any>) => {
@@ -30,15 +30,16 @@ export default class extends Component<State, Props> {
 
     shouldComponentUpdate(nextProps, nextState) {
         return nextProps.solutions !== this.props.solutions ||
+            nextProps.displayLoadMoreCTA !== this.props.displayLoadMoreCTA ||
             nextProps.limit !== this.props.limit ||
             nextState.viewable !== this.state.viewable ||
             nextState.valid !== this.state.valid;
     }
 
-    componentWillReceiveProps(nextProps) {
+    static getDerivedStateFromProps(nextProps) {
         const valid = new Set(shuffle(nextProps.solutions));
         const viewable = new Set([...valid.values()].slice(0, nextProps.limit));
-        this.setState({viewable, valid});
+        return {viewable, valid};
     }
 
     removeWord = (word: string) => {
@@ -57,13 +58,24 @@ export default class extends Component<State, Props> {
                 duration={500}
                 leaveAnimation="none"
             >
-                {[...this.state.viewable.values()].map(solution =>
-                    <div className="solution" key={solution}>
-                        <Label >
-                            {solution}
-                            <Icon data-solution = {solution} onClick={(event) => this.removeWord(event.target.dataset.solution)} name='close' />
-                        </Label>
-                    </div>)}
+                {
+                    [...this.state.viewable.values()].map(solution =>
+                        <div className="solution" key={solution}>
+                            <Label>
+                                {solution}
+                                <Icon data-solution={solution}
+                                      onClick={(event) => this.removeWord(event.target.dataset.solution)} name='close'/>
+                            </Label>
+                        </div>)
+                }
+                {this.props.displayLoadMoreCTA &&
+                <div className="solution">
+                    <Label onClick={this.props.onClick}
+                        content ='Load more words'
+                        className="cta loadmore"
+                        icon="download"/>
+                </div>
+                    }
             </FlipMove>);
     }
 
